@@ -5,10 +5,17 @@
         <title>化け物から逃げろ!!</title>
     </head>
     <body>
-        <h1>化け物から逃げろ!!</h1>
-        <p>
-            ヤバい迷路で化け物から逃げながら宝を集めようぜ!!
-        </p>
-        <button>スタート</button>
+        <div id="start">
+            <h1>化け物から逃げろ!!</h1>
+            <p>
+                ヤバい迷路で化け物から逃げながら宝を集めようぜ!!
+            </p>
+            <button id="startButton" onclick="hideStart()">スタート</button>
+        </div>
+        <script>
+            function hideStart(){
+                document.getElementById('start').style.display='none';
+            }
+        </script>
     </body>
 </html>
