@@ -10,11 +10,78 @@
             <p>
                 ヤバい迷路で化け物から逃げながら宝を集めようぜ!!
             </p>
-            <button id="startButton" onclick="hideStart()">スタート</button>
+            <button id="startButton" onclick="hideStart();init();">スタート</button>
         </div>
         <script>
             function hideStart(){
                 document.getElementById('start').style.display='none';
+            }
+
+            function createMaze(width,height){
+                if(width%2==0||height%2==0){
+                    return;
+                }
+                let maze=[];
+                for(let i=0;i<height;i++){
+                    maze.push([]);
+                    for(let j=0;j<width;j++){
+                        if(i==0||j==0||i==width-1||j==height-1){
+                            maze[i].push(1);
+                        }else{
+                            maze[i].push(0);
+                        }
+                    }
+                }
+                
+                for(let i=2;i<height-2;i+=2){
+                    for(let j=0;j<width-2;j+=2){
+                        maze[i][j]=1;
+                        let random=Math.floor(Math.random()*4);
+                        switch(random){
+                            case 0:
+                            maze[i-1][j]=1;
+                            break;
+                            case 1:
+                            maze[i+1][j]=1;
+                            break;
+                            case 2:
+                            maze[i][j-1]=1;
+                            break;
+                            case 3:
+                            maze[i][j+1]=1;
+                            break;
+                        }
+                    }
+                }
+
+                return maze;
+            }
+
+            let maze,timer,keys=[];
+
+            addEventListener('keydown',(e)=>{
+                keys[e.keyCode]=true;
+            });
+
+            addEventListener('keyup',(e)=>{
+                keys[e.keyCode]=false;
+            });
+
+            function loop(){
+                if(keys[87]){
+                    console.log('up');
+                }else if(keys[83]){
+                    console.log('down');
+                }else if(keys[65]){
+                    console.log('left')
+                }else if(keys[68]){
+                    console.log('right');
+                }
+            }
+
+            function init(){
+                maze=createMaze(11,11);
+                timer=setInterval(loop,100);
             }
         </script>
     </body>
