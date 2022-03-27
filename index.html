@@ -25,7 +25,7 @@
                 for(let i=0;i<height;i++){
                     maze.push([]);
                     for(let j=0;j<width;j++){
-                        if(i==0||j==0||i==width-1||j==height-1){
+                        if(i==0||j==0||i==height-1||j==width-1){
                             maze[i].push(1);
                         }else{
                             maze[i].push(0);
@@ -57,7 +57,7 @@
                 return maze;
             }
 
-            let maze,timer,keys=[];
+            let maze,timer,keys=[],player={x:1,y:1};
 
             addEventListener('keydown',(e)=>{
                 keys[e.keyCode]=true;
@@ -67,20 +67,44 @@
                 keys[e.keyCode]=false;
             });
 
+            function getDisplayText(map,player){
+                let text="";
+                for(let i=0;i<map.length;i++){
+                    for(let j=0;j<map[i].length;j++){
+                        if(i==player.y&&j==player.x)
+                            text+=":)";
+                        else
+                            if(map[i][j])
+                                text+="||";
+                            else
+                                text+="  ";
+                    }
+                    text+="\n";
+                }
+                return text;
+            }
+
             function loop(){
                 if(keys[87]){
-                    console.log('up');
+                    if(!maze[player.y-1][player.x])
+                        player.y--;
                 }else if(keys[83]){
-                    console.log('down');
+                    if(!maze[player.y+1][player.x])
+                        player.y++;
                 }else if(keys[65]){
-                    console.log('left')
+                    if(!maze[player.y][player.x-1])
+                        player.x--;
                 }else if(keys[68]){
-                    console.log('right');
+                    if(!maze[player.y][player.x+1])
+                        player.x++;
                 }
+                let dispMaze=getDisplayText(maze,player);
+                console.log(dispMaze);
+                console.log("x:",player.x,",y:",player.y);
             }
 
             function init(){
-                maze=createMaze(11,11);
+                maze=createMaze(51,27);
                 timer=setInterval(loop,100);
             }
         </script>
