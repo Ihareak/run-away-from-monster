@@ -10,13 +10,15 @@
             <p>
                 ヤバい迷路で化け物から逃げながら宝を集めようぜ!!
             </p>
-            <button id="startButton" onclick="hideStart();init();">スタート</button>
+            <button id="startButton" onclick="start()">スタート</button>
+        </div>
+        <div id="game" style="display:none">
+            <canvas id="canvas" width="500" height="500"></canvas>
+        </div>
+        <div style="display:none">
+            <img src="icon.PNG" id="player"/>
         </div>
         <script>
-            function hideStart(){
-                document.getElementById('start').style.display='none';
-            }
-
             function createMaze(width,height){
                 if(width%2==0||height%2==0){
                     return;
@@ -34,7 +36,7 @@
                 }
                 
                 for(let i=2;i<height-2;i+=2){
-                    for(let j=0;j<width-2;j+=2){
+                    for(let j=2;j<width-2;j+=2){
                         maze[i][j]=1;
                         let random=Math.floor(Math.random()*4);
                         switch(random){
@@ -58,6 +60,9 @@
             }
 
             let maze,timer,keys=[],player={x:1,y:1};
+            let canvas=document.getElementById('canvas');
+            let ctx=canvas.getContext('2d');
+            let playerImage=document.getElementById('player');
 
             addEventListener('keydown',(e)=>{
                 keys[e.keyCode]=true;
@@ -98,14 +103,31 @@
                     if(!maze[player.y][player.x+1])
                         player.x++;
                 }
-                let dispMaze=getDisplayText(maze,player);
-                console.log(dispMaze);
-                console.log("x:",player.x,",y:",player.y);
+                ctx.fillStyle='#eedcb3';
+                ctx.fillRect(0,0,500,500);
+                ctx.fillStyle='#11aa00';
+                drawMap(ctx,maze,225-player.x*50,225-player.y*50,50,50);
+                ctx.drawImage(playerImage,225,225,50,50);
             }
 
             function init(){
                 maze=createMaze(51,27);
                 timer=setInterval(loop,100);
+            }
+
+            function start(){
+                document.getElementById('start').style.display='none';
+                document.getElementById('game').style.display='block';
+                init();
+            }
+
+            function drawMap(ctx,map,x,y,mapChipWidth,mapChipHeight){
+                for(let i=0;i<map.length;i++){
+                    for(let j=0;j<map[i].length;j++){
+                        if(map[i][j])
+                            ctx.fillRect(x+j*mapChipWidth,y+i*mapChipHeight,mapChipWidth,mapChipHeight);
+                    }
+                }
             }
         </script>
     </body>
