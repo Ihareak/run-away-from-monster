@@ -59,7 +59,7 @@
                 return maze;
             }
 
-            let maze,timer,keys=[],player={x:1,y:1};
+            let maze,timer,keys=[],player={x:1,y:1},monster={x:123,y:123};
             let canvas=document.getElementById('canvas');
             let ctx=canvas.getContext('2d');
             let playerImage=document.getElementById('player');
@@ -103,11 +103,25 @@
                     if(!maze[player.y][player.x+1])
                         player.x++;
                 }
+
+                const routeMap=getRouteMap(maze,player.x,player.y);
+                let min=Infinity;
+                let move;
+                for(const d of [[1,0],[0,1],[0,-1],[-1,0]]){
+                    if(routeMap!=undefined&&routeMap[monster.y+d[0]][monster.x+d[1]]<min){
+                        move=d;
+                        min=routeMap[monster.y+d[0]][monster.x+d[1]];
+                    }
+                }
+                monster.x+=move[1];
+                monster.y+=move[0];
+
                 ctx.fillStyle='#eedcb3';
                 ctx.fillRect(0,0,500,500);
                 ctx.fillStyle='#11aa00';
                 drawMap(ctx,maze,225-player.x*50,225-player.y*50,50,50);
                 ctx.drawImage(playerImage,225,225,50,50);
+                ctx.drawImage(playerImage,225-player.x*50+monster.x*50,225-player.y*50+monster.y*50,50,50);
             }
 
             function init(){
