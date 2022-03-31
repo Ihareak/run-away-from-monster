@@ -111,7 +111,7 @@
             }
 
             function init(){
-                maze=createMaze(51,27);
+                maze=createMaze(125,125);
                 timer=setInterval(loop,100);
             }
 
@@ -130,6 +130,7 @@
                 }
             }
 
+            //classの説明、shiftの欠点、実際の比較
             class Queue{
                 constructor(){
                     this.tail=[];
@@ -163,6 +164,33 @@
                 get length(){
                     return this.head.length+this.tail.length;
                 }
+            }
+
+            //探索の解説
+            function getRouteMap(map,x,y){
+                console.time(1);
+                const routeMap=[];
+                for(let i=0;i<map.length;i++){
+                    routeMap.push(new Array(map[i].length));
+                }
+                console.timeEnd(1);
+                const queue=new Queue();
+                //この独自記法説明
+                console.time(1);
+                queue.push({x,y,count:0});
+                while(queue.length){
+                    const data=queue.pop();
+                    if(routeMap[data.y][data.x]!=undefined)
+                        continue;
+                    routeMap[data.y][data.x]=data.count;
+                    for(const d of [[1,0],[0,1],[0,-1],[-1,0]]){
+                        if(!map[data.y+d[0]][data.x+d[1]]&&routeMap[data.y+d[0]][data.x+d[1]]==undefined){
+                            queue.push({x:data.x+d[1],y:data.y+d[0],count:data.count+1});
+                        }
+                    }
+                }
+                console.timeEnd(1);
+                return routeMap;
             }
         </script>
     </body>
