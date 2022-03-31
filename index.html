@@ -129,6 +129,41 @@
                     }
                 }
             }
+
+            class Queue{
+                constructor(){
+                    this.tail=[];
+                    this.head=[];
+                }
+
+                tailToHead(){
+                    while(this.tail.length){
+                        this.head.push(this.tail.pop());
+                    }
+                }
+
+                push(val){
+                    this.tail.push(val);
+                }
+
+                top(){
+                    if(!this.head.length){
+                        this.tailToHead();
+                    }
+                    return head[this.head.length-1];
+                }
+
+                pop(){
+                    if(!this.head.length){
+                        this.tailToHead();
+                    }
+                    return this.head.pop();
+                }
+
+                get length(){
+                    return this.head.length+this.tail.length;
+                }
+            }
         </script>
     </body>
 </html>
