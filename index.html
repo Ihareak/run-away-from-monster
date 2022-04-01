@@ -64,6 +64,8 @@
             let ctx=canvas.getContext('2d');
             let playerImage=document.getElementById('player');
 
+            let count=0;
+
             addEventListener('keydown',(e)=>{
                 keys[e.keyCode]=true;
             });
@@ -90,6 +92,10 @@
             }
 
             function loop(){
+                count++;
+                if(player.x==monster.x&&player.y==monster.y){
+                    clearInterval(timer);
+                }
                 if(keys[87]){
                     if(!maze[player.y-1][player.x])
                         player.y--;
@@ -104,17 +110,20 @@
                         player.x++;
                 }
 
-                const routeMap=getRouteMap(maze,player.x,player.y);
-                let min=Infinity;
-                let move;
-                for(const d of [[1,0],[0,1],[0,-1],[-1,0]]){
-                    if(routeMap!=undefined&&routeMap[monster.y+d[0]][monster.x+d[1]]<min){
-                        move=d;
-                        min=routeMap[monster.y+d[0]][monster.x+d[1]];
+                if(count%2){
+                    const routeMap=getRouteMap(maze,player.x,player.y);
+                    let min=Infinity;
+                    let move;
+                    for(const d of [[1,0],[0,1],[0,-1],[-1,0]]){
+                        if(routeMap!=undefined&&routeMap[monster.y+d[0]][monster.x+d[1]]<min){
+                            move=d;
+                            min=routeMap[monster.y+d[0]][monster.x+d[1]];
+                        }
                     }
+                    monster.x+=move[1];
+                    monster.y+=move[0];
+
                 }
-                monster.x+=move[1];
-                monster.y+=move[0];
 
                 ctx.fillStyle='#eedcb3';
                 ctx.fillRect(0,0,500,500);
