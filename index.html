@@ -59,19 +59,31 @@
                 return maze;
             }
 
-            let maze,timer,keys=[],player={x:1,y:1},monster={x:123,y:123};
-            let canvas=document.getElementById('canvas');
-            let ctx=canvas.getContext('2d');
-            let playerImage=document.getElementById('player');
+            let maze,timer,player,monster,count;
+            const canvas=document.getElementById('canvas'),
+            ctx=canvas.getContext('2d'),
+            playerImage=document.getElementById('player');
 
-            let count=0;
+
+            const faces={
+                stop:[0,0],
+                down:[1,0],
+                up:[-1,0],
+                right:[0,1],
+                left:[0,-1]
+            };
+
 
             addEventListener('keydown',(e)=>{
-                keys[e.keyCode]=true;
-            });
-
-            addEventListener('keyup',(e)=>{
-                keys[e.keyCode]=false;
+                if(e.keyCode==87){
+                    player.nextFace=faces.up;
+                }else if(e.keyCode==83){
+                    player.nextFace=faces.down;
+                }else if(e.keyCode==65){
+                    player.nextFace=faces.left;
+                }else if(e.keyCode==68){
+                    player.nextFace=faces.right;
+                }
             });
 
             function getDisplayText(map,player){
@@ -93,35 +105,30 @@
 
             function loop(){
                 count++;
-                
-                if(keys[87]){
-                    if(!maze[player.y-1][player.x])
-                        player.y--;
-                }else if(keys[83]){
-                    if(!maze[player.y+1][player.x])
-                        player.y++;
-                }else if(keys[65]){
-                    if(!maze[player.y][player.x-1])
-                        player.x--;
-                }else if(keys[68]){
-                    if(!maze[player.y][player.x+1])
-                        player.x++;
+
+                if(!maze[player.y+player.nextFace[0]][player.x+player.nextFace[1]]){
+                    player.face=player.nextFace;
                 }
 
-                if(count%2){
-                    const routeMap=getRouteMap(maze,player.x,player.y);
-                    let min=Infinity;
-                    let move;
-                    for(const d of [[1,0],[0,1],[0,-1],[-1,0]]){
-                        if(routeMap!=undefined&&routeMap[monster.y+d[0]][monster.x+d[1]]<min){
-                            move=d;
-                            min=routeMap[monster.y+d[0]][monster.x+d[1]];
+                if(!maze[player.y+player.face[0]][player.x+player.face[1]]){
+                    player.y+=player.face[0];
+                    player.x+=player.face[1];
+                }
+
+                if(player.x!=monster.x||player.y!=monster.y)
+                    if(count%2){
+                        const routeMap=getRouteMap(maze,player.x,player.y);
+                        let min=Infinity;
+                        let move;
+                        for(const d of [[1,0],[0,1],[0,-1],[-1,0]]){
+                            if(routeMap!=undefined&&routeMap[monster.y+d[0]][monster.x+d[1]]<min){
+                                move=d;
+                                min=routeMap[monster.y+d[0]][monster.x+d[1]];
+                            }
                         }
+                        monster.x+=move[1];
+                        monster.y+=move[0];
                     }
-                    monster.x+=move[1];
-                    monster.y+=move[0];
-
-                }
 
                 ctx.fillStyle='#eedcb3';
                 ctx.fillRect(0,0,500,500);
@@ -141,6 +148,14 @@
             function init(){
                 maze=createMaze(125,125);
                 timer=setInterval(loop,100);
+                player={
+                    x:1,
+                    y:1,
+                    face:faces.stop,
+                    nextFace:faces.stop
+                };
+                monster={x:123,y:123};
+                count=0;
             }
 
             function start(){
