@@ -93,9 +93,7 @@
 
             function loop(){
                 count++;
-                if(player.x==monster.x&&player.y==monster.y){
-                    clearInterval(timer);
-                }
+                
                 if(keys[87]){
                     if(!maze[player.y-1][player.x])
                         player.y--;
@@ -130,7 +128,14 @@
                 ctx.fillStyle='#11aa00';
                 drawMap(ctx,maze,225-player.x*50,225-player.y*50,50,50);
                 ctx.drawImage(playerImage,225,225,50,50);
-                ctx.drawImage(playerImage,225-player.x*50+monster.x*50,225-player.y*50+monster.y*50,50,50);
+                //ctx.drawImage(playerImage,225-player.x*50+monster.x*50,225-player.y*50+monster.y*50,50,50);
+                ctx.fillStyle='#ff000080';
+                ctx.fillRect(225-player.x*50+monster.x*50,225-player.y*50+monster.y*50,50,50);
+
+                console.log('player:',player.x,player.y,'\nmonster:',monster.x,monster.y);
+                if(player.x==monster.x&&player.y==monster.y){
+                    clearInterval(timer);
+                }
             }
 
             function init(){
@@ -191,15 +196,12 @@
 
             //探索の解説
             function getRouteMap(map,x,y){
-                console.time(1);
                 const routeMap=[];
                 for(let i=0;i<map.length;i++){
                     routeMap.push(new Array(map[i].length));
                 }
-                console.timeEnd(1);
                 const queue=new Queue();
                 //この独自記法説明
-                console.time(1);
                 queue.push({x,y,count:0});
                 while(queue.length){
                     const data=queue.pop();
@@ -212,7 +214,6 @@
                         }
                     }
                 }
-                console.timeEnd(1);
                 return routeMap;
             }
         </script>
