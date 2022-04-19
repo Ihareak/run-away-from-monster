@@ -13,10 +13,12 @@
             <button id="startButton" onclick="start()">スタート</button>
         </div>
         <div id="game" style="display:none">
-            <canvas id="canvas" width="500" height="500"></canvas>
+            <canvas id="canvas" width="600" height="600"></canvas>
         </div>
         <div style="display:none">
             <img src="icon.PNG" id="player"/>
+            <img src="crystal.png" id="crystal"/>
+            <img src="monster.png" id="monster"/>
         </div>
         <script>
             function createMaze(width,height){
@@ -59,19 +61,38 @@
                 return maze;
             }
 
-            let maze,timer,keys=[],player={x:1,y:1},monster={x:123,y:123};
-            let canvas=document.getElementById('canvas');
-            let ctx=canvas.getContext('2d');
-            let playerImage=document.getElementById('player');
+            let maze,timer,player,monster,count,crystals;
+            const startDiv=document.getElementById('start'),
+            gameDiv=document.getElementById('game'),
+            canvas=document.getElementById('canvas'),
+            ctx=canvas.getContext('2d'),
+            playerImage=document.getElementById('player'),
+            monsterImage=document.getElementById('monster'),
+            crystalImage=document.getElementById('crystal'),
+            canvasWidth=600,canvasHeight=600,
+            chipWidth=48,chipHeight=48,
+            playerXDraw=(canvasWidth-chipWidth)/2,playerYDraw=(canvasHeight-chipHeight)/2;
 
-            let count=0;
+
+            const faces={
+                stop:[0,0],
+                down:[1,0],
+                up:[-1,0],
+                right:[0,1],
+                left:[0,-1]
+            };
+
 
             addEventListener('keydown',(e)=>{
-                keys[e.keyCode]=true;
-            });
-
-            addEventListener('keyup',(e)=>{
-                keys[e.keyCode]=false;
+                if(e.keyCode==87){
+                    player.nextFace=faces.up;
+                }else if(e.keyCode==83){
+                    player.nextFace=faces.down;
+                }else if(e.keyCode==65){
+                    player.nextFace=faces.left;
+                }else if(e.keyCode==68){
+                    player.nextFace=faces.right;
+                }
             });
 
             function getDisplayText(map,player){
@@ -93,54 +114,117 @@
 
             function loop(){
                 count++;
-                if(player.x==monster.x&&player.y==monster.y){
-                    clearInterval(timer);
-                }
-                if(keys[87]){
-                    if(!maze[player.y-1][player.x])
-                        player.y--;
-                }else if(keys[83]){
-                    if(!maze[player.y+1][player.x])
-                        player.y++;
-                }else if(keys[65]){
-                    if(!maze[player.y][player.x-1])
-                        player.x--;
-                }else if(keys[68]){
-                    if(!maze[player.y][player.x+1])
-                        player.x++;
+
+                if(!maze[player.y+player.nextFace[0]][player.x+player.nextFace[1]]){
+                    player.face=player.nextFace;
                 }
 
-                if(count%2){
-                    const routeMap=getRouteMap(maze,player.x,player.y);
-                    let min=Infinity;
-                    let move;
-                    for(const d of [[1,0],[0,1],[0,-1],[-1,0]]){
-                        if(routeMap!=undefined&&routeMap[monster.y+d[0]][monster.x+d[1]]<min){
-                            move=d;
-                            min=routeMap[monster.y+d[0]][monster.x+d[1]];
+                if(!maze[player.y+player.face[0]][player.x+player.face[1]]){
+                    player.y+=player.face[0];
+                    player.x+=player.face[1];
+                }
+
+                if(player.x!=monster.x||player.y!=monster.y)
+                    if(count%3<2){
+                        const routeMap=getRouteMap(maze,player.x,player.y);
+                        let min=Infinity;
+                        let move;
+                        for(const d of [[1,0],[0,1],[0,-1],[-1,0]]){
+                            if(routeMap!=undefined&&routeMap[monster.y+d[0]][monster.x+d[1]]<min){
+                                move=d;
+                                min=routeMap[monster.y+d[0]][monster.x+d[1]];
+                            }
                         }
+                        monster.x+=move[1];
+                        monster.y+=move[0];
                     }
-                    monster.x+=move[1];
-                    monster.y+=move[0];
-
+                
+                for(let i=0;i<crystals.length;i++){
+                    if(player.x==crystals[i].x&&player.y==crystals[i].y){
+                        crystals.splice(i,1);
+                        i--;
+                    }
                 }
 
                 ctx.fillStyle='#eedcb3';
-                ctx.fillRect(0,0,500,500);
+                ctx.fillRect(0,0,canvasWidth,canvasHeight);
                 ctx.fillStyle='#11aa00';
-                drawMap(ctx,maze,225-player.x*50,225-player.y*50,50,50);
-                ctx.drawImage(playerImage,225,225,50,50);
-                ctx.drawImage(playerImage,225-player.x*50+monster.x*50,225-player.y*50+monster.y*50,50,50);
+                drawMap(
+                    ctx,
+                    maze,
+                    playerXDraw-player.x*chipWidth,
+                    playerYDraw-player.y*chipHeight,
+                    chipWidth,
+                    chipHeight
+                );
+                ctx.drawImage(
+                    playerImage,
+                    playerXDraw,
+                    playerYDraw,
+                    chipWidth,
+                    chipHeight
+                );
+                ctx.drawImage(
+                    monsterImage,
+                    playerXDraw+(monster.x-player.x)*chipWidth,
+                    playerYDraw+(monster.y-player.y)*chipHeight,
+                    chipWidth,
+                    chipHeight
+                );
+                
+                for(const crystal of crystals){
+                    ctx.drawImage(
+                        crystalImage,
+                        playerXDraw+(crystal.x-player.x)*chipWidth,
+                        playerYDraw+(crystal.y-player.y)*chipHeight,
+                        chipWidth,
+                        chipHeight
+                    );
+                }
+
+                ctx.font='48px sans-serif';
+                ctx.fillStyle='#000000';
+                ctx.textAlign='left';
+                ctx.textBaseline='top';
+                ctx.fillText(`crystals:${5-crystals.length}/5`,0,0);
+
+                console.log('crystals:',crystals.length,'\nplayer:',player.x,player.y,'\nmonster:',monster.x,monster.y);
+                if(player.x==monster.x&&player.y==monster.y){
+                    clearInterval(timer);
+                }
+                if(!crystals.length){
+                    clearInterval(timer);
+                }
             }
 
             function init(){
-                maze=createMaze(125,125);
+                const mapWidth=35,mapHeight=35;
+                maze=createMaze(mapWidth,mapHeight)
                 timer=setInterval(loop,100);
+                player={
+                    x:1,
+                    y:1,
+                    face:faces.stop,
+                    nextFace:faces.stop
+                };
+                monster={x:mapWidth-2,y:mapHeight-2};
+                count=0;
+                crystals=[];
+                const accessablePositions=getAccessablePositions(maze,player.x,player.y);
+                const shuffledAccessablePositions=getShuffledArray(accessablePositions);
+
+
+                for(let i=0;i<5;i++){
+                    crystals.push({
+                        y:shuffledAccessablePositions[i][0],
+                        x:shuffledAccessablePositions[i][1]
+                    });
+                }
             }
 
             function start(){
-                document.getElementById('start').style.display='none';
-                document.getElementById('game').style.display='block';
+                startDiv.style.display='none';
+                gameDiv.style.display='block';
                 init();
             }
 
@@ -191,15 +275,12 @@
 
             //探索の解説
             function getRouteMap(map,x,y){
-                console.time(1);
                 const routeMap=[];
                 for(let i=0;i<map.length;i++){
                     routeMap.push(new Array(map[i].length));
                 }
-                console.timeEnd(1);
                 const queue=new Queue();
                 //この独自記法説明
-                console.time(1);
                 queue.push({x,y,count:0});
                 while(queue.length){
                     const data=queue.pop();
@@ -212,8 +293,44 @@
                         }
                     }
                 }
-                console.timeEnd(1);
                 return routeMap;
+            }
+
+            function getAccessablePositions(map,x,y){
+                const flags=[];
+                for(let i=0;i<map.length;i++){
+                    flags.push(new Array(map[i].length).fill(0));
+                }
+
+                const positions=[];
+                const queue=new Queue();
+                //この独自記法説明
+                queue.push({x,y});
+                while(queue.length){
+                    const data=queue.pop();
+                    if(flags[data.y][data.x])
+                        continue;
+                    positions.push([data.y,data.x]);
+                    flags[data.y][data.x]=1;
+                    for(const d of [[1,0],[0,1],[0,-1],[-1,0]]){
+                        if(!map[data.y+d[0]][data.x+d[1]]&&(!flags[data.y+d[0]][data.x+d[1]])){
+                            queue.push({x:data.x+d[1],y:data.y+d[0],count:data.count+1});
+                        }
+                    }
+                }
+                return positions;
+            }
+
+            function getShuffledArray(arr){
+                const ret=[].concat(arr);
+
+                for(let i=ret.length-1;i>=0;i--){
+                    const rand=Math.floor(Math.random()*i);
+                    const tmp=ret[i];
+                    ret[i]=ret[rand];
+                    ret[rand]=tmp;
+                }
+                return ret;
             }
         </script>
     </body>
