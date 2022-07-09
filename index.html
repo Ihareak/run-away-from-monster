@@ -13,7 +13,7 @@
             <button id="startButton" onclick="start()">スタート</button>
         </div>
         <div id="game" style="display:none">
-            <canvas id="canvas" width="600" height="600"></canvas>
+            <canvas id="canvas" width="1200" height="1200" style="width: 600px;height: 600px;"></canvas>
         </div>
         <div style="display:none">
             <img src="icon.PNG" id="player"/>
@@ -69,8 +69,8 @@
             playerImage=document.getElementById('player'),
             monsterImage=document.getElementById('monster'),
             crystalImage=document.getElementById('crystal'),
-            canvasWidth=600,canvasHeight=600,
-            chipWidth=48,chipHeight=48,
+            canvasWidth=1200,canvasHeight=1200,
+            chipWidth=96,chipHeight=96,
             playerXDraw=(canvasWidth-chipWidth)/2,playerYDraw=(canvasHeight-chipHeight)/2;
 
 
